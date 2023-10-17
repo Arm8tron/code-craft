@@ -1,4 +1,5 @@
-﻿using api.Model;
+﻿using api.Data;
+using api.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api.Controller

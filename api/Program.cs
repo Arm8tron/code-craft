@@ -1,4 +1,4 @@
-using api;
+using api.Data;
 using api.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +19,9 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddDbContext<CodeCraftDbContext>(opt => opt.UseSqlServer(
     builder.Configuration.GetConnectionString("CodeCraft")
+));
+builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(
+    builder.Configuration.GetConnectionString("Users")
 ));
 
 builder.Services.AddControllers();
