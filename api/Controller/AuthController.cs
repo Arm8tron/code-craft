@@ -1,5 +1,6 @@
 ﻿using api.Data;
 using api.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -81,48 +82,37 @@ namespace api.Controller
 
 
             string token = createToken(requiredUser);
-            UserResponse userResponse = new UserResponse();
-            userResponse.token = token;
-            userResponse.username = requiredUser.username;
-            userResponse.email = requiredUser.email;
-            return Ok( new { success = "Fetched user data successfully", userResponse });
+            return Ok( new { success = "Fetched user data successfully", token });
         }
 
-        private void createPasswordHash(string password, out byte[] passwordhash, out byte[] passwordsalt) 
-        { 
-            using (var hmac = new HMACSHA512())
-            {
-                passwordsalt = hmac.Key;
-                passwordhash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-            }
-        }
-
-        private bool verifyPasswordHash(string password, byte[] passwordhash, byte[] passwordsalt)
+        [HttpGet("fetch")]
+        [Authorize]
+        public IActionResult Fetch()
         {
-            using(var hmac = new HMACSHA512(passwordsalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
-                return computedHash.SequenceEqual(passwordhash);
-            }
+            var username = User.FindFirst(ClaimTypes.Name)?.Value;
+            var userData = _userDb.users.FirstOrDefault(item => item.username == username);
+            UserResponse response = new UserResponse();
+            response.username = userData.username;
+            response.email = userData.email;
+            return Ok(new { response });
         }
 
         private string createToken(User user)
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.username)
+                new Claim(ClaimTypes.Name, user.username),
+                new Claim(ClaimTypes.Role, "Admin")
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value!));
 
-            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
             var token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(30),
-                signingCredentials: cred
+                expires: DateTime.Now.AddDays(60),
+                signingCredentials: creds
                 );
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

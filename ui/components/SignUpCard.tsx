@@ -42,7 +42,7 @@ const formSchema = zod.object({
 });
 
 
-export default function SignUpCard({ toggleAuthType }: { toggleAuthType: MouseEventHandler<HTMLSpanElement> }) {
+export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) {
     const { toast } = useToast();
 
     const form = useForm<zod.infer<typeof formSchema>>({
@@ -73,6 +73,8 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: MouseEv
                 toast({
                     description: data.success,
                 })
+
+                toggleAuthType();
                 
             })
             .catch(error => {

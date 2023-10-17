@@ -33,14 +33,10 @@ const formSchema = zod.object({
 type Response = {
     success : string,
     error :string,
-    userResponse : {
-        token: string,
-        username: string,
-        email: string
-    }
+    token: string,
 }
 
-export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEventHandler<HTMLSpanElement> }) {
+export default function SignInCard({ toggleAuthType, manualTriggerAuth }: { toggleAuthType: MouseEventHandler<HTMLSpanElement>, manualTriggerAuth : Function }) {
     const { toast } = useToast();
 
     const form = useForm<zod.infer<typeof formSchema>>({
@@ -64,12 +60,11 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
                     throw new Error(data.error)
                 }
 
-                toast({
-                    description: data.success,
-                })
+                console.log(data.success);
 
-                localStorage.setItem('token', data.userResponse.token);
+                localStorage.setItem('token', data.token);
 
+                manualTriggerAuth();
             })
             .catch(error => {
                 console.error(error);

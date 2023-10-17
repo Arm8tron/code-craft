@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react';
-import Header from '@/components/Header';
 import CodeEditor from '@/components/CodeEditor';
 import { DEFAULT_CSS, DEFAULT_HTML, DEFAULT_JS } from '@/lib/constants';
 import { CodeCraft } from '@/types/CodeCraft';
 import Preview from '@/components/Preview';
+import { useAuth } from '@/hooks/useAuth';
 
 export const getData = (async (craftId: string) => {
     const res = await fetch(`http://localhost:5023/api?craftId=${craftId}`);
@@ -18,6 +18,8 @@ export const getData = (async (craftId: string) => {
 })
 
 export default function Page({ params }: { params: { craftId: string } }) {
+    const { user } = useAuth();
+
     const htmlPanelRef = useRef<HTMLDivElement>(null);
     const cssPanelRef = useRef<HTMLDivElement>(null);
     const jsPanelRef = useRef<HTMLDivElement>(null);
@@ -27,7 +29,6 @@ export default function Page({ params }: { params: { craftId: string } }) {
     const [js, setJs] = useState<string>(DEFAULT_JS);
     const [html, setHtml] = useState<string>(DEFAULT_HTML);
     const [css, setCss] = useState<string>(DEFAULT_CSS);
-    const [srcDoc, setSrcDoc] = useState<string>("");
     const [panelWidths, setPanelWidths] = useState<number[]>([0.33, 0.33, 0.33]);
     const [codeEditorHeight, setCodeEditorHeight] = useState<number>(0.5);
 
@@ -40,25 +41,6 @@ export default function Page({ params }: { params: { craftId: string } }) {
             setJs(js);
         }).catch(console.warn)
     }, []);
-
-    useEffect(() => {
-        const timeout = setTimeout(() => {
-            const code: string = `
-            <!DOCTYPE html>
-            <html lang="en" class>
-               <head>
-                    <meta charset="UTF-8">
-                    <title>PenCraft Demo</title>
-                    <style>${css}</style>
-               </head>
-              <body>${html}</body>
-              <script>${js}</script>
-            </html>
-            `
-            setSrcDoc(code);
-        }, 1000);
-        return () => clearTimeout(timeout);
-    }, [js, html, css]);
 
     function saveCraft() {
         fetch("http://localhost:5023/api", {
@@ -102,9 +84,13 @@ export default function Page({ params }: { params: { craftId: string } }) {
 
     return (
         <>
-            <Header name={craftData?.name} createdBy={craftData?.createdBy} />
+            <header className="border-b border-slate-500 flex flex-row justify-between px-4 py-2">
+                <div className="flex flex-col space-y-2">
+                    <span>{craftData?.name ?? "CodeCraft Demo"}</span>
+                    <span>{craftData?.createdBy ?? "Your name"}</span>
+                </div>
+            </header>
             <main className='flex flex-col flex-1'>
-                <button onClick={saveCraft} className='bg-slate-300'>Save</button>
                 <div ref={codeEditorRef} style={{ height: codeEditorHeight * 100 + '%' }} id='code-editor' className='flex flex-row'>
                     <div className='w-3 border-slate-500 border-l border-r'></div>
                     <CodeEditor ref={htmlPanelRef} width={panelWidths[0]} type='html' value={html} update={updateHtml} />
@@ -115,7 +101,7 @@ export default function Page({ params }: { params: { craftId: string } }) {
                 </div>
                 <div id='code-editor-resizer' className='h-3 w-full border-slate-500 border cursor-row-resize'></div>
                 <div className="flex-1 relative overflow-hidden">
-                    <Preview srcDoc={srcDoc}/>
+                    <Preview html={html} css={css} js={js} />
                 </div>
             </main>
         </>
