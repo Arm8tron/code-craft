@@ -15,8 +15,8 @@ export default function Page() {
 
     useEffect(() => {
         if(user) {
-            const redirect = searchParams.get('redirect');
-            if(redirect) {
+            if(searchParams.has('redirect')) {
+                const redirect = searchParams.get('redirect');
                 router.push(`/crafts/${redirect}`);
             } else {
                 router.push(`/profile/${user.username}`);
