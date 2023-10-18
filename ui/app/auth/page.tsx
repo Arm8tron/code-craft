@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import SignUpCard from '@/components/SignUpCard';
 import SignInCard from '@/components/SignInCard';
 import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 type authType = "signin" | "signup";
 
@@ -11,10 +11,16 @@ export default function Page() {
     const { user, loading, manualTriggerAuth } = useAuth();
     const [authType, setAuthType] = useState<authType>("signup");
     const router = useRouter();
+    const searchParams = useSearchParams()
 
     useEffect(() => {
         if(user) {
-            router.push(`/profile/${user.username}`);
+            const redirect = searchParams.get('redirect');
+            if(redirect) {
+                router.push(`/crafts/${redirect}`);
+            } else {
+                router.push(`/profile/${user.username}`);
+            }
         }
     }, [user, loading]);
 

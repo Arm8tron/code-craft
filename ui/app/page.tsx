@@ -1,27 +1,27 @@
 "use client"
-import { CodeCraft } from '@/types/CodeCraft';
+import { useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation'
 
 
 
 export default function Page() {
     const router = useRouter();
+    const { user, loading } = useAuth();
 
-    function goToRandomCraft() {
-        fetch("http://localhost:5023/all")
-        .then(res => res.json())
-        .then((data : CodeCraft[]) => {
-            const min = 0;
-            const max = data.length;
-            const randomNum = Math.floor(Math.random() * (max - min + 1)) + min;
-            router.push(`/crafts/${data[randomNum].craftId}`);
-        })
-    }
+    useEffect(() => {
+        if(user) {
+            router.push(`/profile/${user.username}`)
+        } else {
+            if(!loading) {
+                router.push(`/auth`);
+            }
+        }
+    }, [user, loading]);
 
     return (
-        <>
-          <div> Bobblina</div>
-          <button onClick={goToRandomCraft}>Go to random craft!</button>  
-        </>
+        <main className='flex flex-1 items-center justify-center'>
+          <h1>Welcome to Codecraft!</h1>
+        </main>
     )
 }

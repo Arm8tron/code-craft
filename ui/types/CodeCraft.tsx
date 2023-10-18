@@ -1,5 +1,4 @@
 export type CodeCraft = {
-    id : number,
     craftId: string,
     name: string,
     createdBy: string,
