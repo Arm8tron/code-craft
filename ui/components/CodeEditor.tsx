@@ -1,20 +1,22 @@
-import React, { forwardRef, ForwardedRef } from 'react';
+import React, { forwardRef, ForwardedRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import jsIcon from "@/public/assets/js.svg";
 import htmlIcon from "@/public/assets/html.svg";
 import cssIcon from "@/public/assets/css.svg";
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 interface CodeEditorProps {
     update: (js: string) => void;
     type: 'js' | 'html' | 'css';
     width: number;
     value: string | undefined;
-    isSaved : boolean | false;
+    isSaved: boolean | false;
 }
 
 const CodeEditor = forwardRef((props: CodeEditorProps, ref: ForwardedRef<HTMLDivElement>) => {
     const { update, type, width, value, isSaved } = props;
+    const [isMounted, setIsMounted] = useState(false);
 
     function handleChange(e: string | undefined) {
         if (e) {
@@ -34,13 +36,19 @@ const CodeEditor = forwardRef((props: CodeEditorProps, ref: ForwardedRef<HTMLDiv
                 </div>
                 {!isSaved && <span className='text-sm text-slate-500'>( Unsaved )</span>}
             </div>
-            <Editor
-                height={"50vh"}
-                defaultLanguage={type === "js" ? "javascript" : type}
-                value={value}
-                onChange={handleChange}
-                theme="vs-dark"
-            />
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isMounted ? 1 : 0 }}
+            >
+                <Editor
+                    height={"50vh"}
+                    defaultLanguage={type === "js" ? "javascript" : type}
+                    value={value}
+                    onChange={handleChange}
+                    theme="vs-dark"
+                    onMount={() => setIsMounted(true)}
+                />
+            </motion.div>
         </div>
     );
 });

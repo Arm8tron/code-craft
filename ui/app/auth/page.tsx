@@ -4,6 +4,7 @@ import SignUpCard from '@/components/SignUpCard';
 import SignInCard from '@/components/SignInCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 type authType = "signin" | "signup";
 
@@ -14,8 +15,8 @@ export default function Page() {
     const searchParams = useSearchParams()
 
     useEffect(() => {
-        if(user) {
-            if(searchParams.has('redirect')) {
+        if (user) {
+            if (searchParams.has('redirect')) {
                 const redirect = searchParams.get('redirect');
                 router.push(`/crafts/${redirect}`);
             } else {
@@ -25,7 +26,7 @@ export default function Page() {
     }, [user, loading]);
 
     function toggleAuthType() {
-        if(authType == "signin") {
+        if (authType == "signin") {
             setAuthType("signup");
         } else {
             setAuthType("signin");
@@ -34,9 +35,22 @@ export default function Page() {
 
     return (
         <main className='flex flex-1 items-center justify-center'>
-            {
-                authType == "signin" ? <SignInCard toggleAuthType={toggleAuthType} manualTriggerAuth={manualTriggerAuth}/> : <SignUpCard toggleAuthType={toggleAuthType}/>
-            }
+            <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{
+                    type: "spring",
+                    stiffness: 100
+                }}
+            >
+                {
+                    authType == "signin" ?
+                        <SignInCard toggleAuthType={toggleAuthType} manualTriggerAuth={manualTriggerAuth} />
+                        :
+                        <SignUpCard toggleAuthType={toggleAuthType} />
+                }
+            </motion.div>
+
         </main>
     )
 }
