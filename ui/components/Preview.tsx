@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from "react"
 
 export default function Preview(props: { html: string, css: string, js: string }) {
