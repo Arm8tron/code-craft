@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { getData } from '../page';
+import { getData } from '@/lib/utils';
 import Preview from '@/components/Preview';
 import { CodeCraft } from '@/types/CodeCraft';
 

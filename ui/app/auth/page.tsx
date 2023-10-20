@@ -18,7 +18,7 @@ export default function Page() {
         if (user) {
             if (searchParams.has('redirect')) {
                 const redirect = searchParams.get('redirect');
-                router.push(`/crafts/${redirect}`);
+                router.push(`/craft/${redirect}`);
             } else {
                 router.push(`/profile/${user.username}`);
             }

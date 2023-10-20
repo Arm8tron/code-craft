@@ -43,22 +43,13 @@ import {
     LogIn,
     Pencil
 } from 'lucide-react';
+import { getData } from '@/lib/utils';
 
 
 const formSchema = zod.object({
     craftId: zod.string().min(1),
     craftName: zod.string().min(4),
 });
-
-export const getData = (async (craftId: string) => {
-    const res = await fetch(`http://localhost:5023/api?craftId=${craftId}`);
-
-    if (!res.ok) {
-        throw new Error("Failed to fetch data")
-    }
-
-    return res.json();
-})
 
 export default function Page({ params }: { params: { craftId: string } }) {
     const { user } = useAuth();
@@ -207,7 +198,7 @@ export default function Page({ params }: { params: { craftId: string } }) {
             body: JSON.stringify({ html, css, js, name: values.craftName, createdBy: user?.username, craftId: values.craftId })
         }).then(res => res.json())
             .then(() => {
-                router.push(`/crafts/${values.craftId}`)
+                router.push(`/craft/${values.craftId}`)
             })
     }
 
@@ -290,7 +281,7 @@ export default function Page({ params }: { params: { craftId: string } }) {
                         </DialogContent>
                     </Dialog>
                     <Button>
-                        <Link href={`/crafts/${craftData.craftId}/preview`}>
+                        <Link href={`/craft/${craftData.craftId}/preview`}>
                             Preview
                         </Link>
                     </Button>

@@ -53,4 +53,5 @@ const CodeEditor = forwardRef((props: CodeEditorProps, ref: ForwardedRef<HTMLDiv
     );
 });
 
+CodeEditor.displayName = 'CodeEditor';
 export default CodeEditor;

@@ -112,7 +112,7 @@ export default function SignInCard({ toggleAuthType, manualTriggerAuth }: { togg
                             )}
                         />
                         <div className='flex flex-row justify-between'>
-                            <span onClick={toggleAuthType} className='whitespace-nowrap text-xs underline cursor-pointer text-primary'>Don't have an account?</span>
+                            <span onClick={toggleAuthType} className='whitespace-nowrap text-xs underline cursor-pointer text-primary'>Don&apos;t have an account?</span>
                             <span className='whitespace-nowrap text-xs underline opacity-0'>Forgot password?</span>
                         </div>
                         <Button className='w-full'>Sign In with Email</Button>
