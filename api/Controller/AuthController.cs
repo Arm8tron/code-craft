@@ -3,12 +3,11 @@ using api.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text.Json.Serialization;
 
 namespace api.Controller
 {
@@ -19,11 +18,13 @@ namespace api.Controller
         public static User user = new User();
         private readonly IConfiguration _configuration;
         private readonly UserDbContext _userDb;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public AuthController(IConfiguration configuration, UserDbContext db)
+        public AuthController(IConfiguration configuration, UserDbContext db, IHttpContextAccessor contextAccessor)
         {
             _configuration = configuration;
             _userDb = db;
+            _contextAccessor = contextAccessor;
         }
 
         [HttpPost("register")]
@@ -57,6 +58,7 @@ namespace api.Controller
             User newUser = new User();
             newUser.email = body.email;
             newUser.username = body.username;
+            newUser.name = body.name;
             newUser.passwordhash = passwordhash;
             _userDb.users.Add(newUser);
             _userDb.SaveChanges();  
@@ -82,6 +84,10 @@ namespace api.Controller
 
 
             string token = createToken(requiredUser);
+            var cookieOptions = new CookieOptions();
+            cookieOptions.Expires = DateTime.Now.AddDays(60);
+            cookieOptions.Secure = false;
+            Response.Cookies.Append("session", token, cookieOptions );
             return Ok( new { success = "Fetched user data successfully", token });
         }
 
@@ -94,6 +100,21 @@ namespace api.Controller
             UserResponse response = new UserResponse();
             response.username = userData.username;
             response.email = userData.email;
+            response.name = userData.name != "" ? userData.name : userData.username;
+            return Ok(new { response });
+        }
+
+        [HttpGet("user")]
+        public IActionResult UserData(string username)
+        {
+            var userData = _userDb.users.FirstOrDefault(item => item.username.Equals(username));
+
+            if(userData == null) { return BadRequest(new { error = "User not found" }); }
+
+            UserResponse response = new UserResponse();
+            response.username = userData.username;
+            response.email = userData.email;
+            response.name = userData.name != "" ? userData.name : userData.username;
             return Ok(new { response });
         }
 

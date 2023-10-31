@@ -28,7 +28,8 @@ const formSchema = zod.object({
     email: zod.string().email(),
     password: zod.string().min(4),
     confirm_password: zod.string().min(4),
-    username: zod.string().min(2).max(25)
+    username: zod.string().min(2).max(25),
+    name: zod.string().min(2).max(25)
 }).superRefine((val, ctx) => {
     if (val.confirm_password != val.password) {
         ctx.addIssue({
@@ -48,7 +49,8 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) 
             email: "",
             password: "",
             confirm_password: "",
-            username: ""
+            username: "",
+            name: "",
         }
     })
 
@@ -88,7 +90,7 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) 
         <Card className="w-[380px]">
             <CardHeader className='text-center'>
                 <CardTitle>Create an account</CardTitle>
-                <CardDescription>Enter your email and password to create your account</CardDescription>
+                <CardDescription>Fill up the following details to create your account</CardDescription>
             </CardHeader>
             <CardContent className='grid w-full items-center gap-6'>
                 <Form {...form}>
@@ -138,6 +140,19 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) 
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Username</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="SuperCat333" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name</FormLabel>
                                     <FormControl>
                                         <Input placeholder="SuperCat333" {...field} />
                                     </FormControl>

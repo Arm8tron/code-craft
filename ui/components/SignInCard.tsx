@@ -23,7 +23,9 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
+import Cookies from "universal-cookie"
+import { useUser } from '@/app/providers';
 
 const formSchema = zod.object({
     username: zod.string().min(2).max(25),
@@ -36,8 +38,9 @@ type Response = {
     token: string,
 }
 
-export default function SignInCard({ toggleAuthType, manualTriggerAuth }: { toggleAuthType: MouseEventHandler<HTMLSpanElement>, manualTriggerAuth : Function }) {
+export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEventHandler<HTMLSpanElement>, }) {
     const { toast } = useToast();
+    const { login } = useUser();
 
     const form = useForm<zod.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -60,11 +63,10 @@ export default function SignInCard({ toggleAuthType, manualTriggerAuth }: { togg
                     throw new Error(data.error)
                 }
 
-                console.log(data.success);
-
-                localStorage.setItem('token', data.token);
-
-                manualTriggerAuth();
+                console.log(data);
+                const cookies = new Cookies();
+                cookies.set('session', data.token, { path: '/'  });
+                login();
             })
             .catch(error => {
                 console.error(error);

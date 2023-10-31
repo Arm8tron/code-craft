@@ -13,7 +13,7 @@ builder.Services.AddCors(options =>
     {
         try
         {
-            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
         } catch (Exception ex)
         {
             Console.WriteLine(ex);
@@ -26,6 +26,7 @@ builder.Services.AddDbContext<CodeCraftDbContext>(opt => opt.UseSqlServer(
 builder.Services.AddDbContext<UserDbContext>(opt => opt.UseSqlServer(
     builder.Configuration.GetConnectionString("Users")
 ));
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -52,7 +53,7 @@ app.UseCors("myCors");
 
 app.MapGet("/", () => "Home1");
 app.MapGet("/all", (CodeCraftDbContext db) => {
-    IEnumerable<CodeCraft> codeCrafts = db.codeCrafts;
+    IEnumerable<CodeCraft> codeCrafts = db.codeCrafts.Where(item => item.IsPublic == true);
     return codeCrafts;
 });
 

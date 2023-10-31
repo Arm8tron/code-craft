@@ -4,5 +4,10 @@ export type CodeCraft = {
     createdBy: string,
     js: string,
     css: string,
-    html: string
+    html: string,
+    isPublic: boolean,
+    isFork: boolean,
+    likesCount: number,
+    viewsCount: number,
+    likedBy : string
 }

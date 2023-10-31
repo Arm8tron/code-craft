@@ -1,12 +1,15 @@
 import { getData } from '@/lib/utils';
 import Preview from '@/components/Preview';
 import { CodeCraft } from '@/types/CodeCraft';
+import { cookies } from 'next/headers'
 
 export default async function Page({ params } : { params : { craftId : string } }) {
     let craftData : CodeCraft | null = null;
 
     try {
-        craftData =  await getData(params.craftId)
+        const cookieStore = cookies();
+        const token = cookieStore.get('session');
+        craftData =  await getData(params.craftId, token);
     } catch (error) {
         console.log(error);
     }

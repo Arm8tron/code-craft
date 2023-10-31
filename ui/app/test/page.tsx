@@ -3,60 +3,34 @@ import React from 'react'
 import { motion } from 'framer-motion'
 
 
-const draw = {
+const svgDraw = {
+    hidden: { rotate: 0 },
+    visible: {
+        rotate: 0,
+        transition: { duration: 1 }
+    }
+}
+
+const pathDraw = {
     hidden: { pathLength: 0, opacity: 0 },
     visible: {
-        pathLength : 1, 
+        pathLength: 1,
         opacity: 1,
         transition: {
-            pathLength: { delay: 1, type: "spring", duration: 1.5, bounce: 0 },
-            opacity: { delay: 1, duration: 0.01 }
-          }
+            duration: 3,
+            ease: "easeInOut"
+        }
     }
 }
 
 export default function Page() {
     return (
-       <main className='flex flex-1'>
-            <motion.svg
-                width="600"
-                height="600"
-                viewBox="0 0 600 600"
-                initial="hidden"
-                animate="visible"
-            >
-                <motion.circle
-                    cx={200}
-                    cy={100}
-                    r={80}
-                    fill={"#771fff"}
-                    strokeWidth={6}
-                    variants={draw}
-                />
-                <motion.text
-                    x="10" y="40" font-family="Arial" font-size="40" fill="white"
-                    variants={draw}
-                >
-                    mar
-                </motion.text>
+        <main className='flex flex-1 justify-center items-center'>
+            <motion.svg variants={svgDraw} initial="hidden" animate="visible" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-[200px] h-[200px]">
+                <motion.path variants={pathDraw} stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
             </motion.svg>
-            <svg width="200" height="100" xmlns="http://www.w3.org/2000/svg">
-
-                <line x1="20" y1="80" x2="40" y2="40" stroke="white" stroke-width="10" />
-                <line x1="40" y1="40" x2="60" y2="80" stroke="white" stroke-width="10" />
 
 
-                <line x1="70" y1="40" x2="90" y2="80" stroke="white" stroke-width="10" />
-                <line x1="90" y1="80" x2="110" y2="40" stroke="white" stroke-width="10" />
-                <line x1="80" y1="60" x2="100" y2="60" stroke="white" stroke-width="10" />
-
-
-                <line x1="120" y1="40" x2="120" y2="80" stroke="white" stroke-width="10" />
-                <line x1="120" y1="40" x2="140" y2="40" stroke="white" stroke-width="10" />
-                <line x1="140" y1="40" x2="160" y2="60" stroke="white" stroke-width="10" />
-                <line x1="160" y1="60" x2="140" y2="80" stroke="white" stroke-width="10" />
-            </svg>
-
-       </main>
+        </main>
     )
 }

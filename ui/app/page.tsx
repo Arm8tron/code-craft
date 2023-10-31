@@ -1,27 +1,16 @@
-"use client"
-import { useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation'
+import { CodeCraft } from '@/types/CodeCraft';
+import Main from '../components/HomePage';
+
+async function getCrafts() {
+    return await fetch('http://localhost:5023/all', {
+        cache: "no-cache"
+    })
+        .then(res => res.json())
+}
+
+export default async function Page() {
+    const crafts: CodeCraft[] = await getCrafts();
 
 
-
-export default function Page() {
-    const router = useRouter();
-    const { user, loading } = useAuth();
-
-    useEffect(() => {
-        if(user) {
-            router.push(`/profile/${user.username}`)
-        } else {
-            if(!loading) {
-                router.push(`/auth`);
-            }
-        }
-    }, [user, loading]);
-
-    return (
-        <main className='flex flex-1 items-center justify-center'>
-          <h1>Welcome to Codecraft!</h1>
-        </main>
-    )
+    return <Main crafts={crafts}/>
 }

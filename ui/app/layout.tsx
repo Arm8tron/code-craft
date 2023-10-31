@@ -1,8 +1,8 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import { Providers } from './providers'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -20,14 +20,9 @@ export default function RootLayout({
     return (
         <html lang="en" className="!scroll-smooth" suppressHydrationWarning>
             <body className={`${inter.className} min-h-[100vh] flex flex-col`}>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="dark"
-                    enableSystem
-                    disableTransitionOnChange
-                >
+                <Providers>
                     {children}
-                </ThemeProvider>
+                </Providers>
                 <Toaster />
             </body>
         </html>

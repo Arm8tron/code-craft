@@ -21,5 +21,17 @@ namespace api.Model
         public string Css { get; set; }
 
         public string Html { get; set; }
+
+        public bool IsPublic { get; set; } = true;
+
+        public bool IsFork { get; set; } = false;
+
+        public int LikesCount { get; set; } = 0;
+
+        public string LikedBy { get; set; }
+
+        public int ViewsCount { get; set; } = 0;
+
+
     }
 }

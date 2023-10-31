@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 import { CodeCraft } from '@/types/CodeCraft';
 import Preview from '@/components/Preview';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -36,12 +35,14 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
     User,
     LogIn,
     Pencil
 } from 'lucide-react';
+import { Switch } from "@/components/ui/switch";
+import { useUser } from '@/app/providers';
 
 
 const formSchema = zod.object({
@@ -49,8 +50,8 @@ const formSchema = zod.object({
     craftName: zod.string().min(4),
 });
 
-export default function Main({ craftData }: { craftData: CodeCraft }) {
-    const { user } = useAuth();
+export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft }) {
+    const { user } = useUser();
     const { toast } = useToast();
     const router = useRouter();
 
@@ -68,9 +69,11 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
     const jsPanelRef = useRef<HTMLDivElement>(null);
     const codeEditorRef = useRef<HTMLDivElement>(null);
 
-    const [js, setJs] = useState<string>(craftData.js);
-    const [html, setHtml] = useState<string>(craftData.html);
-    const [css, setCss] = useState<string>(craftData.css);
+    const [craftData, setCraftData] = useState<CodeCraft>(fetchedCraftData);
+    const [js, setJs] = useState<string>(fetchedCraftData.js);
+    const [html, setHtml] = useState<string>(fetchedCraftData.html);
+    const [css, setCss] = useState<string>(fetchedCraftData.css);
+    const [isPublic, setPublic] = useState<boolean>(fetchedCraftData.isPublic);
     const [panelWidths, setPanelWidths] = useState<number[]>([0.33, 0.33, 0.33]);
     const [codeEditorHeight, setCodeEditorHeight] = useState<number>(0.5);
 
@@ -83,6 +86,12 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
             window.removeEventListener('keydown', handleKeyDown);
         }
     }, [css, js, html]);
+
+    useEffect(() => {
+        if(isPublic != craftData.isPublic) {
+            saveCraft();
+        }
+    }, [isPublic]);
 
     function handleUnload(e: BeforeUnloadEvent) {
         const shouldShowAlert = !(js === craftData.js && html === craftData.html && css === craftData.css);
@@ -111,7 +120,14 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
             return;
         }
 
-        const newCraftData = { html, css, js, name: craftData?.name, createdBy: craftData?.createdBy || user?.username, craftId: craftData.craftId }
+        const newCraftData : CodeCraft = { 
+            ...craftData,
+            js,
+            html,
+            css,
+            createdBy: craftData.createdBy || user.username,
+            isPublic: isPublic
+        }
 
         fetch("http://localhost:5023/api", {
             method: "POST",
@@ -121,10 +137,7 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
             body: JSON.stringify(newCraftData)
         }).then(res => res.json())
             .then(() => {
-                toast({
-                    description: "Craft saved successfully!"
-                })
-                craftData = newCraftData;
+                setCraftData(newCraftData);
                 document.title = craftData.name;
             })
     }
@@ -168,12 +181,26 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
             return;
         }
 
+        const newCraftData : CodeCraft = {
+            html,
+            css,
+            js,
+            name: values.craftName,
+            createdBy: user.username,
+            craftId: values.craftId,
+            isPublic: isPublic,
+            isFork: true,
+            viewsCount: 0,
+            likesCount: 0,
+            likedBy: ""
+        }
+
         fetch("http://localhost:5023/api", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ html, css, js, name: values.craftName, createdBy: user?.username, craftId: values.craftId })
+            body: JSON.stringify(newCraftData)
         }).then(res => res.json())
             .then(() => {
                 router.push(`/craft/${values.craftId}`)
@@ -192,6 +219,10 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
             saveCraft();          
         }
 
+    }
+
+    function togglePublic(value : boolean) {
+        setPublic(value);
     }
 
     return (
@@ -213,6 +244,11 @@ export default function Main({ craftData }: { craftData: CodeCraft }) {
                     <span className='text-slate-500 text-sm'>By {craftData.createdBy}</span>
                 </div>
                 <div className='flex flex-row items-center gap-3'>
+                    <div className='flex flex-row items-center gap-2'>
+                        <span className='text-xs'>Private</span>
+                        <Switch checked={isPublic} onCheckedChange={togglePublic}/>
+                        <span className='text-xs'>Public</span>
+                    </div>
                     <Button style={{ display: craftData?.createdBy == user?.username || craftData?.createdBy == "" ? "block" : "none" }} onClick={saveCraft}>
                         Save
                     </Button>

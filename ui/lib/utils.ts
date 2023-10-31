@@ -1,12 +1,16 @@
 import { type ClassValue, clsx } from "clsx"
+import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
 import { twMerge } from "tailwind-merge"
  
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const getData = (async (craftId: string) => {
+export const getData = (async (craftId: string, token: RequestCookie | undefined) => {
     const res = await fetch(`http://localhost:5023/api?craftId=${craftId}`, {
+        headers: {
+            Authorization: `Bearer ${token?.value}`,
+        },
         method: "GET",
         cache: 'no-store'
     });

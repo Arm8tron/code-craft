@@ -2,17 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import SignUpCard from '@/components/SignUpCard';
 import SignInCard from '@/components/SignInCard';
-import { useAuth } from '@/hooks/useAuth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useUser } from '../providers';
 
 type authType = "signin" | "signup";
 
 export default function Page() {
-    const { user, loading, manualTriggerAuth } = useAuth();
+    const { user } = useUser();
     const [authType, setAuthType] = useState<authType>("signup");
     const router = useRouter();
-    const searchParams = useSearchParams()
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         if (user) {
@@ -23,7 +23,7 @@ export default function Page() {
                 router.push(`/profile/${user.username}`);
             }
         }
-    }, [user, loading]);
+    }, [user]);
 
     function toggleAuthType() {
         if (authType == "signin") {
@@ -45,7 +45,7 @@ export default function Page() {
             >
                 {
                     authType == "signin" ?
-                        <SignInCard toggleAuthType={toggleAuthType} manualTriggerAuth={manualTriggerAuth} />
+                        <SignInCard toggleAuthType={toggleAuthType} />
                         :
                         <SignUpCard toggleAuthType={toggleAuthType} />
                 }
