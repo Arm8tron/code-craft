@@ -39,26 +39,26 @@ import {
 import {
     User,
     LogIn,
-    Pencil
+    Pencil,
+    LogOut
 } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { useUser } from '@/app/providers';
+import randomstring from 'randomstring';
 
 
 const formSchema = zod.object({
-    craftId: zod.string().min(1),
     craftName: zod.string().min(4),
 });
 
 export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft }) {
-    const { user } = useUser();
+    const { user, logout } = useUser();
     const { toast } = useToast();
     const router = useRouter();
 
     const form = useForm<zod.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            craftId: "",
             craftName: ""
         }
     })
@@ -181,13 +181,19 @@ export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft
             return;
         }
 
+        
+        const craftId = randomstring.generate({
+            length: 5,
+            charset: 'alphanumeric'
+        })
+
         const newCraftData : CodeCraft = {
             html,
             css,
             js,
             name: values.craftName,
             createdBy: user.username,
-            craftId: values.craftId,
+            craftId: craftId,
             isPublic: isPublic,
             isFork: true,
             viewsCount: 0,
@@ -203,7 +209,7 @@ export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft
             body: JSON.stringify(newCraftData)
         }).then(res => res.json())
             .then(() => {
-                router.push(`/craft/${values.craftId}`)
+                router.push(`/craft/${craftId}`)
             })
     }
 
@@ -275,19 +281,6 @@ export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft
                                             </FormItem>
                                         )}
                                     />
-                                    <FormField
-                                        control={form.control}
-                                        name="craftId"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Craft ID</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="Craft ID" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
                                     <Button className='w-full'>Create new fork</Button>
                                 </form>
                             </Form>
@@ -308,12 +301,20 @@ export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft
                         <DropdownMenuContent>
                             {
                                 user ?
-                                    <DropdownMenuItem>
-                                        <Link href={`/profile/${user?.username}`} className='flex flex-row'>
-                                            <User className="mr-2 h-4 w-4" />
-                                            <span>Profile</span>
-                                        </Link>
-                                    </DropdownMenuItem>
+                                    <>
+                                        <DropdownMenuItem>
+                                            <Link href={`/profile/${user?.username}`} className='flex flex-row'>
+                                                <User className="mr-2 h-4 w-4" />
+                                                <span>Profile</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <div onClick={logout} className='flex flex-row cursor-pointer'>
+                                                <LogOut className="mr-2 h-4 w-4" />
+                                                <span>Logout</span>
+                                            </div>
+                                        </DropdownMenuItem>
+                                    </>
                                     :
                                     <DropdownMenuItem>
                                         <Link href={`/auth?redirect=${craftData.craftId}`} className='flex flex-row'>

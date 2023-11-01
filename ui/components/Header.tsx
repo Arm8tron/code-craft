@@ -15,13 +15,16 @@ import { useRouter } from 'next/navigation';
 import { DEFAULT_CSS, DEFAULT_HTML, DEFAULT_JS } from '@/lib/constants';
 import { CodeCraft } from '@/types/CodeCraft';
 import randomstring from 'randomstring';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from './ui/dropdown-menu';
+import Link from 'next/link';
+import { LogIn, LogOut, User } from 'lucide-react';
 
 export default function Header() {
     const router = useRouter();
-    const { user } = useUser();
+    const { user, logout } = useUser();
     const [craftName, setCraftName] = useState("");
 
-    function createNewPen(e : React.FormEvent<HTMLFormElement>) {
+    function createNewPen(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (!user) {
             toast({
@@ -37,10 +40,10 @@ export default function Header() {
             charset: 'alphanumeric'
         })
 
-        const newCraftData : CodeCraft = {
-            html : DEFAULT_HTML,
-            css : DEFAULT_CSS,
-            js : DEFAULT_JS,
+        const newCraftData: CodeCraft = {
+            html: DEFAULT_HTML,
+            css: DEFAULT_CSS,
+            js: DEFAULT_JS,
             name: craftName,
             createdBy: user.username,
             craftId: craftId,
@@ -75,8 +78,8 @@ export default function Header() {
                         <DialogTitle>Give a name to your new craft</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={createNewPen} className='flex flex-col justify-center items-center gap-2'>
-                        <Input 
-                            placeholder='Craft Name' 
+                        <Input
+                            placeholder='Craft Name'
                             name='craft-name'
                             value={craftName}
                             onChange={e => setCraftName(e.target.value)}
@@ -85,10 +88,40 @@ export default function Header() {
                     </form>
                 </DialogContent>
             </Dialog>
-            <Avatar className='w-10 border border-slate-700 h-10 p-2 hover:bg-slate-600 duration-200 rounded-full cursor-pointer'>
-                <AvatarImage src={`https://api.dicebear.com/7.x/identicon/svg?radius=50&size=36&seed=${user?.username}`}></AvatarImage>
-                <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Avatar className='w-10 border border-slate-700 h-10 p-2 hover:bg-slate-600 duration-200 rounded-full cursor-pointer'>
+                        <AvatarImage src={`https://api.dicebear.com/7.x/identicon/svg?radius=50&size=36&seed=${user?.username}`}></AvatarImage>
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    {
+                        user ?
+                            <>
+                                <DropdownMenuItem>
+                                    <Link href={`/profile/${user?.username}`} className='flex flex-row'>
+                                        <User className="mr-2 h-4 w-4" />
+                                        <span>Profile</span>
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <div onClick={logout} className='flex flex-row cursor-pointer'>
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        <span>Logout</span>
+                                    </div>
+                                </DropdownMenuItem>
+                            </>
+                            :
+                            <DropdownMenuItem>
+                                <Link href={`/auth`} className='flex flex-row'>
+                                    <LogIn className="mr-2 h-4 w-4" />
+                                    <span>Log In</span>
+                                </Link>
+                            </DropdownMenuItem>
+                    }
+                </DropdownMenuContent>
+            </DropdownMenu>
         </header>
     )
 }

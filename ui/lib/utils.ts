@@ -29,3 +29,30 @@ export const sleep = async (ms : number) => {
         }, ms);
     })
 }
+
+export const customFetch = async ({ pathName, method = 'GET', body } : {
+    pathName: string,
+    method?: 'GET' | 'POST' | 'PATCH' | 'PUT',
+    body?: Object
+}) => {
+    return new Promise( async (resolve , reject) => {
+        const requestObj : RequestInit  = {
+            method,
+            credentials: 'include',
+            cache: 'no-store',
+        }
+
+        if(method == 'POST') {
+            requestObj.body = JSON.stringify(body);
+        }
+
+        const response = await fetch(`http://localhost:5023/${pathName}`, requestObj);
+
+        if(!response.ok) {
+            reject(response);
+        }
+
+        const data = await response.json();
+        resolve(data);
+    })
+}

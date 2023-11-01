@@ -11,9 +11,11 @@ import {
 import Preview from './Preview';
 import {
     Heart,
-    Eye
+    Eye,
+    ArrowUpRightFromCircle
 } from 'lucide-react';
 import { useUser } from '@/app/providers';
+import Link from 'next/link';
 
 type CraftCardProps = {
     craft: CodeCraft
@@ -39,7 +41,7 @@ export default function CraftCard({ craft : propsCraft }: CraftCardProps) {
         } else {
             setLiked(false);
         }
-    }, [craft]);
+    }, [craft, user]);
 
     function toggleHeart() {
         const token = user.token;
@@ -59,7 +61,14 @@ export default function CraftCard({ craft : propsCraft }: CraftCardProps) {
     return (
         <Card className={"w-1/2 sm:w-1/3 overflow-hidden"}>
             <CardHeader className='py-4 pl-6'>
-                <CardTitle>{craft.createdBy}</CardTitle>
+                <CardTitle className='flex flex-row justify-between'>
+                    <span>{craft.createdBy}</span>
+                    <Link href={`/craft/${craft.craftId}`} 
+                        target='_blank'
+                        className='hover:bg-slate-600 p-2 rounded-xl'>
+                        <ArrowUpRightFromCircle size={16}/>
+                    </Link>
+                </CardTitle>
                 <CardDescription>{craft.name}</CardDescription>
             </CardHeader>
             <CardContent className='relative h-[40vh]'>

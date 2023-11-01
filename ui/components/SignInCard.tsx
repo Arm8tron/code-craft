@@ -4,13 +4,10 @@ import {
     Card,
     CardContent,
     CardDescription,
-    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { Icons } from "@/components/icons";
 import zod from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,10 +23,12 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import Cookies from "universal-cookie"
 import { useUser } from '@/app/providers';
+import { Checkbox } from "@/components/ui/checkbox"
 
 const formSchema = zod.object({
     username: zod.string().min(2).max(25),
     password: zod.string().min(4),
+    remember: zod.boolean().default(false).optional()
 })
 
 type Response = {
@@ -46,7 +45,8 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
         resolver: zodResolver(formSchema),
         defaultValues: {
             password: "",
-            username: ""
+            username: "",
+            remember: false
         }
     })
 
@@ -56,7 +56,10 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(values)
+            body: JSON.stringify({
+                username: values.username,
+                password: values.password
+            })
         }).then(res => res.json())
             .then((data : Response) => {
                 if (data.error) {
@@ -65,7 +68,11 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
 
                 console.log(data);
                 const cookies = new Cookies();
-                cookies.set('session', data.token, { path: '/'  });
+                const expirationDate = new Date();
+                if(values.remember) {
+                    expirationDate.setDate(expirationDate.getDate() + 60);
+                }
+                cookies.set('session', data.token, { path: '/', expires: expirationDate });
                 login();
             })
             .catch(error => {
@@ -110,6 +117,18 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
                                         <Input type='password' placeholder="$Tr0nG!@99" {...field} />
                                     </FormControl>
                                     <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="remember"
+                            render={({ field }) => (
+                                <FormItem className='flex flex-row items-center gap-2 justify-start'>
+                                    <FormControl>
+                                        <Checkbox id='remember-check' checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                    <FormLabel style={{ marginTop: "0px" }}>Remember me</FormLabel>
                                 </FormItem>
                             )}
                         />
