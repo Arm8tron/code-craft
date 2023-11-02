@@ -245,17 +245,17 @@ export default function Main({ fetchedCraftData }: { fetchedCraftData: CodeCraft
                             onBlur={toggleCraftName}
                             onClick={toggleCraftName}
                         />
-                        <Pencil style={{ display: craftData?.createdBy == user?.username || craftData?.createdBy == "" ? "block" : "none" }} className='w-4 ml-2 cursor-pointer' onClick={toggleCraftName} />
+                        <Pencil style={{ display: craftData?.createdBy == user?.username ? "block" : "none" }} className='w-4 ml-2 cursor-pointer' onClick={toggleCraftName} />
                     </div>
                     <span className='text-slate-500 text-sm'>By {craftData.createdBy}</span>
                 </div>
                 <div className='flex flex-row items-center gap-3'>
-                    <div className='flex flex-row items-center gap-2'>
+                    <div style={{ display: craftData?.createdBy == user?.username ? "flex" : "none" }} className='flex flex-row items-center gap-2'>
                         <span className='text-xs'>Private</span>
                         <Switch checked={isPublic} onCheckedChange={togglePublic}/>
                         <span className='text-xs'>Public</span>
                     </div>
-                    <Button style={{ display: craftData?.createdBy == user?.username || craftData?.createdBy == "" ? "block" : "none" }} onClick={saveCraft}>
+                    <Button style={{ display: craftData?.createdBy == user?.username ? "block" : "none" }} onClick={saveCraft}>
                         Save
                     </Button>
                     <Dialog>

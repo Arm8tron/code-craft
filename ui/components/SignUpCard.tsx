@@ -73,7 +73,7 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) 
                     description: data.success,
                 })
 
-                toggleAuthType();
+                toggleAuthType("signin");
                 
             })
             .catch(error => {
@@ -87,7 +87,7 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) 
     }
 
     return (
-        <Card className="w-[380px]">
+        <Card className="w-[380px] h-[85vh]">
             <CardHeader className='text-center'>
                 <CardTitle>Create an account</CardTitle>
                 <CardDescription>Fill up the following details to create your account</CardDescription>
@@ -161,7 +161,6 @@ export default function SignUpCard({ toggleAuthType }: { toggleAuthType: any }) 
                             )}
                         />
                         <div className='flex flex-row justify-between'>
-                            <span onClick={toggleAuthType} className='whitespace-nowrap text-xs underline cursor-pointer text-primary'>Already have an account?</span>
                             <span className='whitespace-nowrap text-xs underline opacity-0'>Forgot password?</span>
                         </div>
                         <Button className='w-full'>Sign Up with Email</Button>

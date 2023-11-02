@@ -24,6 +24,7 @@ import { useToast } from "@/components/ui/use-toast";
 import Cookies from "universal-cookie"
 import { useUser } from '@/app/providers';
 import { Checkbox } from "@/components/ui/checkbox"
+import { customFetch } from '@/lib/utils';
 
 const formSchema = zod.object({
     username: zod.string().min(2).max(25),
@@ -37,7 +38,7 @@ type Response = {
     token: string,
 }
 
-export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEventHandler<HTMLSpanElement>, }) {
+export default function SignInCard() {
     const { toast } = useToast();
     const { login } = useUser();
 
@@ -51,28 +52,13 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
     })
 
     async function onSubmit(values: zod.infer<typeof formSchema>) {
-        fetch("http://localhost:5023/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                username: values.username,
-                password: values.password
-            })
-        }).then(res => res.json())
+        customFetch({ pathName: 'auth/login', method: "POST", body: values })
             .then((data : Response) => {
                 if (data.error) {
                     throw new Error(data.error)
                 }
 
                 console.log(data);
-                const cookies = new Cookies();
-                const expirationDate = new Date();
-                if(values.remember) {
-                    expirationDate.setDate(expirationDate.getDate() + 60);
-                }
-                cookies.set('session', data.token, { path: '/', expires: expirationDate });
                 login();
             })
             .catch(error => {
@@ -86,10 +72,10 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
     }
 
     return (
-        <Card className={"w-[380px]"}>
+        <Card className={"w-[380px] h-[85vh] flex flex-col items-center justify-center"}>
             <CardHeader className='text-center'>
                 <CardTitle>Sign In to your account</CardTitle>
-                <CardDescription>Enter your email and password to sign in to your account</CardDescription>
+                <CardDescription>Enter your username and password to sign in to your account</CardDescription>
             </CardHeader>
             <CardContent className='grid w-full items-center gap-6'>
                 <Form {...form}>
@@ -133,7 +119,6 @@ export default function SignInCard({ toggleAuthType }: { toggleAuthType: MouseEv
                             )}
                         />
                         <div className='flex flex-row justify-between'>
-                            <span onClick={toggleAuthType} className='whitespace-nowrap text-xs underline cursor-pointer text-primary'>Don&apos;t have an account?</span>
                             <span className='whitespace-nowrap text-xs underline opacity-0'>Forgot password?</span>
                         </div>
                         <Button className='w-full'>Sign In with Email</Button>

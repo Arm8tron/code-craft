@@ -1,5 +1,7 @@
 ﻿using api.Data;
 using api.Model;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -68,7 +70,7 @@ namespace api.Controller
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest body)
+        public async Task<IActionResult> Login([FromBody] LoginRequest body)
         {
             var username = body.username;
             var requiredUser = _userDb.users.FirstOrDefault(item => item.username == username);
@@ -84,18 +86,42 @@ namespace api.Controller
 
 
             string token = createToken(requiredUser);
-            var cookieOptions = new CookieOptions();
-            cookieOptions.Expires = DateTime.Now.AddDays(60);
-            cookieOptions.Secure = false;
-            Response.Cookies.Append("session", token, cookieOptions );
-            return Ok( new { success = "Fetched user data successfully", token });
+            var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, username),
+        };
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var authProperties = new AuthenticationProperties
+            {
+                AllowRefresh = body.remember,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(60),
+                IsPersistent = true,
+                IssuedUtc = DateTimeOffset.UtcNow,
+            };
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+            return Ok( new { success = "Cookie set successfully" });
+        }
+
+        [HttpGet("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok();
+
         }
 
         [HttpGet("fetch")]
         [Authorize]
         public IActionResult Fetch()
         {
-            var username = User.FindFirst(ClaimTypes.Name)?.Value;
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var userData = _userDb.users.FirstOrDefault(item => item.username == username);
             UserResponse response = new UserResponse();
             response.username = userData.username;

@@ -34,22 +34,27 @@ export const customFetch = async ({ pathName, method = 'GET', body } : {
     pathName: string,
     method?: 'GET' | 'POST' | 'PATCH' | 'PUT',
     body?: Object
-}) => {
+}) : Promise<any> => {
+    console.log(pathName);
+
     return new Promise( async (resolve , reject) => {
         const requestObj : RequestInit  = {
             method,
             credentials: 'include',
-            cache: 'no-store',
+            cache: 'no-store'
         }
 
         if(method == 'POST') {
             requestObj.body = JSON.stringify(body);
+            requestObj.headers = {
+                "Content-Type": "application/json",
+            }
         }
 
         const response = await fetch(`http://localhost:5023/${pathName}`, requestObj);
 
         if(!response.ok) {
-            reject(response);
+            return reject(response);
         }
 
         const data = await response.json();

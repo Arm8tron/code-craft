@@ -5,12 +5,13 @@ import SignInCard from '@/components/SignInCard';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useUser } from '../providers';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type authType = "signin" | "signup";
 
 export default function Page() {
     const { user } = useUser();
-    const [authType, setAuthType] = useState<authType>("signup");
+    const [authType, setAuthType] = useState<authType>("signin");
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -25,12 +26,8 @@ export default function Page() {
         }
     }, [user]);
 
-    function toggleAuthType() {
-        if (authType == "signin") {
-            setAuthType("signup");
-        } else {
-            setAuthType("signin");
-        }
+    function toggleAuthType(newAuthType : authType) {
+        setAuthType(newAuthType);
     }
 
     return (
@@ -43,14 +40,15 @@ export default function Page() {
                     stiffness: 100
                 }}
             >
-                {
-                    authType == "signin" ?
-                        <SignInCard toggleAuthType={toggleAuthType} />
-                        :
-                        <SignUpCard toggleAuthType={toggleAuthType} />
-                }
+                <Tabs defaultValue="signin" value={authType} className="w-full">
+                    <TabsList className='w-full'>
+                        <TabsTrigger className='w-1/2 flex items-center justify-center' onClick={() => toggleAuthType("signin")} value="signin">Sign In</TabsTrigger>
+                        <TabsTrigger className='w-1/2 flex items-center justify-center' onClick={() => toggleAuthType("signup")} value="signup">Sign Up</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="signin"><SignInCard /></TabsContent>
+                    <TabsContent value="signup"><SignUpCard toggleAuthType={toggleAuthType}/></TabsContent>
+                </Tabs>
             </motion.div>
-
         </main>
     )
 }
